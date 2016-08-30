@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
+import numpy as np
 #import ttk
 
 d = [ 'Start', 
@@ -39,7 +40,7 @@ class App():
         root.configure(background='#eeeeee')
         root.title("OptoPAD SPC v0.1")
         root.resizable(width=False, height=False)
-        root.geometry("800x900")
+        root.geometry("650x900")
     
         """
         # create a menu
@@ -78,10 +79,10 @@ class App():
         xtop = Frame(top, relief=RIDGE, borderwidth=2, background='#eeeeee')
         Label(xtop, text="Please type in information about experimental protocol", background='#eeeeee').grid(row=0, column = 0,  columnspan=3, sticky=W+E, pady=2)
         Label(xtop, text="From arena", background='#eeeeee').grid(row=1, column = 0, sticky=W)
-        self.var.append(Scale(xtop, from_=1, to=64, orient=HORIZONTAL, showvalue=8, tickinterval=0, length=120, takefocus=True))
+        self.var.append(Scale(xtop, from_=1, to=32, orient=HORIZONTAL, showvalue=8, tickinterval=0, length=120, takefocus=True, background='#eeeeee'))
         self.var[-1].grid(row=1, column = 1, columnspan=2, sticky=W+E)
         Label(xtop, text="To arena", background='#eeeeee').grid(row=2, column = 0, sticky=W)
-        self.var.append(Scale(xtop, from_=1, to=64, orient=HORIZONTAL, showvalue=8, tickinterval=0, length= 120, takefocus=True))
+        self.var.append(Scale(xtop, from_=1, to=32, orient=HORIZONTAL, showvalue=8, tickinterval=0, length= 120, takefocus=True, background='#eeeeee'))
         self.var[-1].grid(row=2, column = 1, columnspan=2, sticky=W+E)
         xtop.pack()
         top.pack(fill=BOTH)
@@ -120,17 +121,17 @@ class App():
         
         Label(xctop, text="Delay [ms]:", background='#eeeeee').grid(row=9, column = 0, sticky=W)
         for channel in range(2):
-            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True))
+            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=9, column = 2+channel, sticky=W+E)
         
         Label(xctop, text="Sustain [ms]:", background='#eeeeee').grid(row=10, column = 0, sticky=W)
         for channel in range(2):
-            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True))
+            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=10, column = 2+channel, sticky=W+E)
         
         Label(xctop, text="Probability:", background='#eeeeee').grid(row=11, column = 0, sticky=W)
         for channel in range(2):
-            self.var.append(Scale(xctop, from_=0, to=1, orient=HORIZONTAL, length=200, resolution=0.01, showvalue=8, tickinterval=0, takefocus=True))
+            self.var.append(Scale(xctop, from_=0, to=1, orient=HORIZONTAL, length=200, resolution=0.01, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=11, column = 2+channel, sticky=W+E)
         
         Label(xctop, text="Stop with activity:", background='#eeeeee').grid(row=12, column = 0, sticky=W)
@@ -145,7 +146,7 @@ class App():
             for ind in range(5):
                 if channel==0:
                     Label(xctop, text="Frequency " + str(ind+1) +" [Hz]:", background='#eeeeee').grid(row=ind+14, column = 0, sticky=W)
-                self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True))
+                self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
                 self.var[-1].grid(row=ind+14, column = 2+channel, sticky=W+E)
         
         xctop.pack()
@@ -156,7 +157,7 @@ class App():
     def getBottom(self, root):
         botbuttons = Frame(root)       # Row of buttons
         botbuttons.pack()
-        b1 = Button(botbuttons,text="Save Protocol")
+        b1 = Button(botbuttons,text="Save Protocol", command=self.saveProto)
         b2 = Button(botbuttons,text="Add Condition", command=self.addCond)
         b3 = Button(botbuttons,text="Edit Condition", command=self.editCond)
         b4 = Button(botbuttons,text="Delete Condition", command=self.delCond)
@@ -179,7 +180,16 @@ class App():
         self.editCond()
     
     def saveProto(self):
-        return 0
+        datalen = (len(d)-2)
+        outdata = np.zeros((32,datalen))
+        
+        for cond in self.conds:
+            for ind in range(cond.get(0), cond.get(1)):
+                outdata[ind-1,:] = cond.getall()
+        print(outdata)
+                    
+        outdata = np.reshape(outdata,(1,32*datalen))
+        np.savetxt("./config/experiment.dat", outdata)
     
     def addCond(self):
         tempdata = []
@@ -218,6 +228,10 @@ class Condition:
         self.data = []
         for vals in indata:
             self.data.append(vals)
+            
+    def getall(self):
+        #print("This condition has", np.asarray(self.data[2:]).shape, "entries")
+        return np.asarray(self.data[2:])
         
     def get(self, ind):
         return self.data[ind]
