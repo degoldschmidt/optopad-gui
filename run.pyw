@@ -45,7 +45,7 @@ class App():
     def makeWindow (self):
         root = Tk()
         root.configure(background='#eeeeee')
-        root.title("OptoPAD SPC v0.1")
+        root.title("OptoPAD SPC v0.9 (Beta)")
         root.resizable(width=False, height=False)
         root.geometry("650x900")
     
