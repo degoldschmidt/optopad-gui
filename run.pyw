@@ -1,9 +1,16 @@
-from tkinter import *
-from tkinter import ttk
-from tkinter import messagebox
-from tkinter import filedialog
+import sys
+""" Compability check for Python """
+if sys.version_info >= (3,0): 
+    from tkinter import *
+    from tkinter import ttk
+    from tkinter import messagebox
+    from tkinter import filedialog
+else:
+    from Tkinter import *
+    import ttk
+    import tkMessageBox
+    import tkFileDialog
 import numpy as np
-#import ttk
 
 d = [ 'Start', 
       'End', 
@@ -189,7 +196,9 @@ class App():
         print(outdata)
                     
         outdata = np.reshape(outdata,(1,32*datalen))
-        np.savetxt("./config/experiment.dat", outdata)
+        name=filedialog.asksaveasfile(mode='w',defaultextension=".dat")
+        if name is not None:
+            np.savetxt(name, outdata)
     
     def addCond(self):
         tempdata = []
