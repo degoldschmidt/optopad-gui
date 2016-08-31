@@ -1,4 +1,5 @@
 import sys
+import math
 """ Compability check for Python """
 if sys.version_info >= (3,0): 
     from tkinter import *
@@ -156,6 +157,10 @@ class App():
                 self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
                 self.var[-1].grid(row=ind+14, column = 2+channel, sticky=W+E)
         
+        copy1 = Button(xctop,text="Copy from 2", command=self.copyFrom2)
+        copy2 = Button(xctop,text="Copy from 1", command=self.copyFrom1)
+        copy1.grid(row=20, column = 2, sticky=W+E)
+        copy2.grid(row=20, column = 3, sticky=W+E)
         xctop.pack()
         ctop.pack(fill=BOTH)
         
@@ -184,7 +189,9 @@ class App():
         return root
     
     def dclick(self, event):
-        self.editCond()
+        for ind, var in enumerate(self.var):
+            temp = self.conds[self.whichSelected()].get(ind)
+            var.set(temp)
     
     def saveProto(self):
         if len(self.conds)==0:
@@ -212,6 +219,20 @@ class App():
             with open(name,'wb') as f:
                 np.savetxt(f, outdata, fmt=myfmt)
     
+    def copyFrom1(self):
+        for ind, data in enumerate(self.var):
+            if math.fmod(ind,2) > 0 and ind < 10 and ind > 1:
+                data.set(self.var[ind-1].get())
+            elif ind >= 17:
+                data.set(self.var[ind-5].get())
+            
+    def copyFrom2(self):
+        for ind, data in enumerate(self.var):
+            if math.fmod(ind,2) < 1 and ind < 10 and ind > 1:
+                data.set(self.var[ind+1].get())
+            elif ind >= 12 and ind < 17:
+                data.set(self.var[ind+5].get())
+    
     def addCond(self):
         tempdata = []
         for data in self.var:
@@ -221,9 +242,10 @@ class App():
         self.setSelect()
     
     def editCond(self):
-        for ind, var in enumerate(self.var):
-            temp = self.conds[self.whichSelected()].get(ind)
-            var.set(temp)
+        tempdata = []
+        for data in self.var:
+            tempdata.append(data.get())
+        self.conds[self.whichSelected()] = Condition(tempdata)
     
     def delCond(self):
         if self.whichSelected() == None:
