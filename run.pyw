@@ -221,14 +221,14 @@ class App():
     
     def copyFrom1(self):
         for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) > 0 and ind < 10 and ind > 1:
+            if math.fmod(ind,2) > 0 and ind < 12 and ind > 1:
                 data.set(self.var[ind-1].get())
             elif ind >= 17:
                 data.set(self.var[ind-5].get())
             
     def copyFrom2(self):
         for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) < 1 and ind < 10 and ind > 1:
+            if math.fmod(ind,2) < 1 and ind < 12 and ind > 1:
                 data.set(self.var[ind+1].get())
             elif ind >= 12 and ind < 17:
                 data.set(self.var[ind+5].get())
