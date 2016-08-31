@@ -1,11 +1,19 @@
 # optopad-gui
-[![GitHub release](https://img.shields.io/badge/Release-0.9--beta-blue.svg?maxAge=2592000)]()
+[![GitHub release](https://img.shields.io/badge/Release-0.9.1--beta-blue.svg?maxAge=2592000)]()
 
 Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the OptoPad setup 
 
 <div style="text-align:center">
 <img src="./screenshots/demo.png" width="400">
 </div>
+
+## Changelog
+
+v0.9.1-beta:
+**New function:** Copy button for transferring data from one channel to another
+
+v0.9-beta:
+**First working version**
 
 ## Installation
 
