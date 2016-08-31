@@ -1,7 +1,9 @@
 # optopad-gui
 Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the OptoPad setup 
 
-<img src="./screenshots/demo.png" width="200">
+<div style="text-align:center">
+<img src="./screenshots/demo.png" width="400">
+</div>
 
 ## Installation
 
