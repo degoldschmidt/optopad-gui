@@ -7,9 +7,9 @@ if sys.version_info >= (3,0):
     from tkinter import filedialog
 else:
     from Tkinter import *
-    import ttk
-    import tkMessageBox
-    import tkFileDialog
+    import ttk as ttk
+    import tkMessageBox as messagebox
+    import tkFileDialog as filedialog
 import numpy as np
 
 d = [ 'Start', 
@@ -104,17 +104,17 @@ class App():
         
         Label(xctop, text="Color:", background='#eeeeee').grid(row=2, column = 0, sticky=W)
         MODES = [
-        ("red", "1"),
-        ("green", "2"),
-        ("blue", "3"),
-        ("yellow", "4"),
-        ("magenta", "5"),
-        ("cyan", "6"),
-        ("white", "7")
+        ("red", 1),
+        ("green", 2),
+        ("blue", 3),
+        ("yellow", 4),
+        ("magenta", 5),
+        ("cyan", 6),
+        ("white", 7)
         ]
 
         for channel in range(2):
-            self.var.append(StringVar())
+            self.var.append(IntVar())
             self.var[-1].set(1)
 
             for text, mode in MODES:
@@ -187,18 +187,30 @@ class App():
         self.editCond()
     
     def saveProto(self):
+        if len(self.conds)==0:
+            self.addCond()
         datalen = (len(d)-2)
-        outdata = np.zeros((32,datalen))
+        Times = [('t'+str(i), np.int64) for i in range(6)]
+        Freqs = [('f'+str(i), np.int64) for i in range(12)]
+        dt = np.dtype(Times + [('prob1', np.float64), ('prob2', np.float64)] + Freqs)
+        #print(dt)
+        fields = np.zeros(len(Times)+2+len(Freqs), dtype=dt)
+        myfmt = len(Times)*'%u ' + '%1.2f %1.2f ' + len(Freqs)*'%3u '
+        outdata = np.zeros((32,datalen), np.float64)
+    
         
         for cond in self.conds:
-            for ind in range(cond.get(0), cond.get(1)):
-                outdata[ind-1,:] = cond.getall()
-        print(outdata)
+            for ind in range(cond.get(0)-1, cond.get(1)):
+                #print(ind)
+                outdata[ind,:] = cond.getall()
                     
-        outdata = np.reshape(outdata,(1,32*datalen))
-        name=filedialog.asksaveasfile(mode='w',defaultextension=".dat")
+        #outdata = np.reshape(outdata,(1,32*datalen))
+        name=filedialog.asksaveasfilename(defaultextension=".dat")
         if name is not None:
-            np.savetxt(name, outdata)
+            print("Saved to %s" % name)
+            #print(outdata)
+            with open(name,'wb') as f:
+                np.savetxt(f, outdata, fmt=myfmt)
     
     def addCond(self):
         tempdata = []
