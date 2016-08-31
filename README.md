@@ -1,3 +1,5 @@
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg?maxAge=2592000)]()
+
 # optopad-gui
 Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the OptoPad setup 
 
