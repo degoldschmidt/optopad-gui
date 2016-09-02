@@ -25,16 +25,13 @@ d = [ 'Start',
       'Probability2',
       'Stop1',
       'Stop2',
-      'Frequency1_1',
-      'Frequency1_2',
-      'Frequency1_3',
-      'Frequency1_4',
-      'Frequency1_5',
-      'Frequency2_1',
-      'Frequency2_2',
-      'Frequency2_3',
-      'Frequency2_4',
-      'Frequency2_5' ]
+      'Frequency1',
+      'Frequency2',
+      'DutyCycle1',
+      'DutyCycle2',
+      'ConstOnCycle1',
+      'ConstOnCycle2'
+      ]
 
 ### This is for window
 class App():
@@ -46,7 +43,7 @@ class App():
     def makeWindow (self):
         root = Tk()
         root.configure(background='#eeeeee')
-        root.title("OptoPAD SPC v0.91 (Beta)")
+        root.title("OptoPAD SPC v0.9.2 (Beta)")
         root.resizable(width=False, height=False)
         root.geometry("650x900")
     
@@ -151,16 +148,25 @@ class App():
         
         
         for channel in range(2):
-            for ind in range(5):
-                if channel==0:
-                    Label(xctop, text="Frequency " + str(ind+1) +" [Hz]:", background='#eeeeee').grid(row=ind+14, column = 0, sticky=W)
-                self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
-                self.var[-1].grid(row=ind+14, column = 2+channel, sticky=W+E)
+            if channel==0:
+                Label(xctop, text="Frequency [Hz]:", background='#eeeeee').grid(row=14, column = 0, sticky=W)
+            self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
+            self.var[-1].grid(row=14, column = 2+channel, sticky=W+E)
+            
+        Label(xctop, text="Duty cycle:", background='#eeeeee').grid(row=15, column = 0, sticky=W)
+        for channel in range(2):
+            self.var.append(Scale(xctop, from_=0, to=1, orient=HORIZONTAL, length=200, resolution=0.01, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
+            self.var[-1].grid(row=15, column = 2+channel, sticky=W+E)
+            
+        Label(xctop, text="Constant on-cycle:", background='#eeeeee').grid(row=16, column = 0, sticky=W)
+        for channel in range(2):
+            self.var.append(IntVar())
+            Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee').grid(row=16, column = 2+channel)
         
         copy1 = Button(xctop,text="Copy from 2", command=self.copyFrom2)
         copy2 = Button(xctop,text="Copy from 1", command=self.copyFrom1)
-        copy1.grid(row=20, column = 2, sticky=W+E)
-        copy2.grid(row=20, column = 3, sticky=W+E)
+        copy1.grid(row=17, column = 2, sticky=W+E)
+        copy2.grid(row=17, column = 3, sticky=W+E)
         xctop.pack()
         ctop.pack(fill=BOTH)
         
@@ -198,17 +204,16 @@ class App():
             self.addCond()
         datalen = (len(d)-2)
         Times = [('t'+str(i), np.int64) for i in range(6)]
-        Freqs = [('f'+str(i), np.int64) for i in range(12)]
-        dt = np.dtype(Times + [('prob1', np.float64), ('prob2', np.float64)] + Freqs)
+        Freqs = [('f'+str(i), np.int64) for i in range(4)]
+        dt = np.dtype(Times + [('prob1', np.float64), ('prob2', np.float64)] + Freqs + [('duty1', np.float64), ('duty2', np.float64)]  + [('on1', np.int64), ('on2', np.int64)])
         #print(dt)
         fields = np.zeros(len(Times)+2+len(Freqs), dtype=dt)
-        myfmt = len(Times)*'%u ' + '%1.2f %1.2f ' + len(Freqs)*'%3u '
+        myfmt = len(Times)*'%u ' + '%1.2f %1.2f ' + len(Freqs)*'%3u ' + '%1.2f %1.2f '  + '%u %u'
         outdata = np.zeros((32,datalen), np.float64)
     
         
         for cond in self.conds:
             for ind in range(cond.get(0)-1, cond.get(1)):
-                #print(ind)
                 outdata[ind,:] = cond.getall()
                     
         #outdata = np.reshape(outdata,(1,32*datalen))
@@ -221,18 +226,14 @@ class App():
     
     def copyFrom1(self):
         for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) > 0 and ind < 12 and ind > 1:
+            if math.fmod(ind,2) > 0 and ind > 1:
                 data.set(self.var[ind-1].get())
-            elif ind >= 17:
-                data.set(self.var[ind-5].get())
             
     def copyFrom2(self):
         for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) < 1 and ind < 12 and ind > 1:
+            if math.fmod(ind,2) < 1 and ind > 1:
                 data.set(self.var[ind+1].get())
-            elif ind >= 12 and ind < 17:
-                data.set(self.var[ind+5].get())
-    
+
     def addCond(self):
         tempdata = []
         for data in self.var:
