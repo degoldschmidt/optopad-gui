@@ -159,12 +159,14 @@ class App():
             self.var[-1].grid(row=15, column = 2+channel, sticky=W+E)
             
         Label(xctop, text="Constant on-cycle:", background='#eeeeee').grid(row=16, column = 0, sticky=W)
-        for channel in range(2):
-            self.var.append(IntVar())
-            Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee').grid(row=16, column = 2+channel)
+        self.var.append(IntVar())
+        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(14)).grid(row=16, column = 2)
+        self.var.append(IntVar())
+        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(15)).grid(row=16, column = 3)
         
-        copy1 = Button(xctop,text="Copy from 2", command=self.copyFrom2)
-        copy2 = Button(xctop,text="Copy from 1", command=self.copyFrom1)
+        
+        copy1 = Button(xctop,text="Copy from 2", command= lambda: self.copyFrom(2), background='#eeeeee')
+        copy2 = Button(xctop,text="Copy from 1", command= lambda: self.copyFrom(1), background='#eeeeee')
         copy1.grid(row=17, column = 2, sticky=W+E)
         copy2.grid(row=17, column = 3, sticky=W+E)
         xctop.pack()
@@ -175,10 +177,10 @@ class App():
     def getBottom(self, root):
         botbuttons = Frame(root)       # Row of buttons
         botbuttons.pack()
-        b1 = Button(botbuttons,text="Save Protocol", command=self.saveProto)
-        b2 = Button(botbuttons,text="Add Condition", command=self.addCond)
-        b3 = Button(botbuttons,text="Edit Condition", command=self.editCond)
-        b4 = Button(botbuttons,text="Delete Condition", command=self.delCond)
+        b1 = Button(botbuttons,text="Save Protocol", command=self.saveProto, background='#eeeeee')
+        b2 = Button(botbuttons,text="Add Condition", command=self.addCond, background='#eeeeee')
+        b3 = Button(botbuttons,text="Edit Condition", command=self.editCond, background='#eeeeee')
+        b4 = Button(botbuttons,text="Delete Condition", command=self.delCond, background='#eeeeee')
         b1.pack(side=LEFT) 
         b2.pack(side=LEFT)
         b3.pack(side=LEFT)
@@ -198,6 +200,15 @@ class App():
         for ind, var in enumerate(self.var):
             temp = self.conds[self.whichSelected()].get(ind)
             var.set(temp)
+            
+    def disableDuty(self, ch):
+        print("Channel is", ch)
+        print("This event is", self.var[ch+2].get())
+        if self.var[ch+2].get() == 0:
+            self.var[ch].config(state=NORMAL)
+        else:
+            self.var[ch].set(0.5)
+            self.var[ch].config(state=DISABLED)
     
     def saveProto(self):
         if len(self.conds)==0:
@@ -224,15 +235,19 @@ class App():
             with open(name,'wb') as f:
                 np.savetxt(f, outdata, fmt=myfmt)
     
-    def copyFrom1(self):
+    def copyFrom(self, val):
+        if val == 1:
+            fac = -1
+            mod = 1
+        elif val == 2:
+            fac = 1
+            mod = 0
+        else:
+            fac = 0
+            print("Warning: copyFrom used invalid value.")
         for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) > 0 and ind > 1:
-                data.set(self.var[ind-1].get())
-            
-    def copyFrom2(self):
-        for ind, data in enumerate(self.var):
-            if math.fmod(ind,2) < 1 and ind > 1:
-                data.set(self.var[ind+1].get())
+            if int(math.fmod(ind,2)) == mod and ind > 1:
+                data.set(self.var[ind+fac].get())
 
     def addCond(self):
         tempdata = []

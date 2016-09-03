@@ -9,11 +9,16 @@ Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the
 
 ## Changelog
 
+v0.9.2-beta:
+* Dynamic protocols
+* Duty cycle added
+* Constant on-cycle added
+
 v0.9.1-beta:
-**New function:** Copy button for transferring data from one channel to another
+* **New function**: Copy button for transferring data from one channel to another
 
 v0.9-beta:
-**First working version**
+* **First working version**
 
 ## Installation
 
@@ -34,13 +39,9 @@ v0.9-beta:
 | 7             | Probability CH2 (float) |
 | 8             | Stop condition (int) |
 | 9             | Stop condition (int) |
-| 10            | Frequency 1 CH1 (int) |
-| 11            | Frequency 2 CH1 (int) |
-| 12            | Frequency 3 CH1 (int) |
-| 13            | Frequency 4 CH1 (int) |
-| 14            | Frequency 5 CH1 (int) |
-| 15            | Frequency 1 CH2 (int) |
-| 16            | Frequency 2 CH2 (int) |
-| 17            | Frequency 3 CH2 (int) |
-| 18            | Frequency 4 CH2 (int) |
-| 19            | Frequency 5 CH2 (int) |
+| 10            | Frequency CH1 (int) |
+| 11            | Frequency CH2 (int) |
+| 12            | Duty cycle CH1 (float) |
+| 13            | Duty cycle CH2 (float) |
+| 14            | Constant on-cycle CH1 (int) |
+| 15            | Constant on-cycle CH1 (int) |
