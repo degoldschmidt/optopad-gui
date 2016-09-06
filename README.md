@@ -1,5 +1,5 @@
 # optopad-gui
-[![GitHub release](https://img.shields.io/badge/Release-0.9.2--beta-blue.svg?maxAge=2592000)]()
+[![GitHub release](https://img.shields.io/badge/Release-0.9.3--beta-blue.svg?maxAge=2592000)]()
 
 Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the OptoPad setup 
 
@@ -9,13 +9,17 @@ Python-/TKinter-based GUI for creating optogenetic stimulation protocols for the
 
 ## Changelog
 
+v0.9.3-beta:
+* Duty cycle/constant on-cycle option now work
+* **New function:** Load protocol button  
+
 v0.9.2-beta:
-* Dynamic protocols
+* **New function:** Dynamic protocols
 * Duty cycle added
 * Constant on-cycle added
 
 v0.9.1-beta:
-* **New function**: Copy button for transferring data from one channel to another
+* **New function:** Copy button for transferring data from one channel to another
 
 v0.9-beta:
 * **First working version**
