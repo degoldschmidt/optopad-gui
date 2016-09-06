@@ -1,5 +1,6 @@
 import sys
 import math
+import numpy as np
 """ Compability check for Python """
 if sys.version_info >= (3,0): 
     from tkinter import *
@@ -11,27 +12,35 @@ else:
     import ttk as ttk
     import tkMessageBox as messagebox
     import tkFileDialog as filedialog
-import numpy as np
 
-d = [ 'Start', 
-      'End', 
-      'Color1',
-      'Color2',
-      'Delay1',
-      'Delay2',
-      'Sustain1',
-      'Sustain2',
-      'Probability1',
-      'Probability2',
-      'Stop1',
-      'Stop2',
-      'Frequency1',
-      'Frequency2',
-      'DutyCycle1',
-      'DutyCycle2',
-      'ConstOnCycle1',
-      'ConstOnCycle2'
-      ]
+d = { 'Start':          0, 
+      'End':            1, 
+      'Color1':         2,
+      'Color2':         3,
+      'Delay1':         4,
+      'Delay2':         5,
+      'Sustain1':       6,
+      'Sustain2':       7,
+      'Probability1':   8,
+      'Probability2':   9,
+      'Stop1':          10,
+      'Stop2':          11,
+      'Frequency1':     12,
+      'Frequency2':     13,
+      'DutyCycle1':     14,
+      'DutyCycle2':     15,
+      'ConstOnCycle1':  16,
+      'ConstOnCycle2':  17,
+      'OnPeriod1':      18,
+      'OnPeriod2':      19
+      }
+
+def diff(list1, list2):
+    sum=0.
+    for ind, elems in enumerate(list1):
+        sum += math.fabs(elems-list2[ind])
+    return sum
+        
 
 ### This is for window
 class App():
@@ -43,7 +52,7 @@ class App():
     def makeWindow (self):
         root = Tk()
         root.configure(background='#eeeeee')
-        root.title("OptoPAD SPC v0.9.2 (Beta)")
+        root.title("OptoPAD SPC v0.9.3 (Beta)")
         root.resizable(width=False, height=False)
         root.geometry("650x900")
     
@@ -124,14 +133,14 @@ class App():
                 b1.grid(row=1+int(mode), column = 2+channel)
         
         
-        Label(xctop, text="Delay [ms]:", background='#eeeeee').grid(row=9, column = 0, sticky=W)
+        Label(xctop, text="Delay [s]:", background='#eeeeee').grid(row=9, column = 0, sticky=W)
         for channel in range(2):
-            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
+            self.var.append(Scale(xctop, from_=0, to=60, orient=HORIZONTAL, length=200, resolution=0.1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=9, column = 2+channel, sticky=W+E)
         
-        Label(xctop, text="Sustain [ms]:", background='#eeeeee').grid(row=10, column = 0, sticky=W)
+        Label(xctop, text="Sustain [s]:", background='#eeeeee').grid(row=10, column = 0, sticky=W)
         for channel in range(2):
-            self.var.append(Scale(xctop, from_=0, to=60000, orient=HORIZONTAL, length=200, resolution=10, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
+            self.var.append(Scale(xctop, from_=0, to=60, orient=HORIZONTAL, length=200, resolution=0.1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=10, column = 2+channel, sticky=W+E)
         
         Label(xctop, text="Probability:", background='#eeeeee').grid(row=11, column = 0, sticky=W)
@@ -153,38 +162,48 @@ class App():
             self.var.append(Scale(xctop, from_=0, to=250, orient=HORIZONTAL, length=200, resolution=1, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
             self.var[-1].grid(row=14, column = 2+channel, sticky=W+E)
             
-        Label(xctop, text="Duty cycle:", background='#eeeeee').grid(row=15, column = 0, sticky=W)
+        Label(xctop, text="Duty cycle:", background='#eeeeee').grid(row=16, column = 0, sticky=W)
         for channel in range(2):
             self.var.append(Scale(xctop, from_=0, to=1, orient=HORIZONTAL, length=200, resolution=0.01, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee'))
-            self.var[-1].grid(row=15, column = 2+channel, sticky=W+E)
+            self.var[-1].grid(row=16, column = 2+channel, sticky=W+E)
             
-        Label(xctop, text="Constant on-cycle:", background='#eeeeee').grid(row=16, column = 0, sticky=W)
+        Label(xctop, text="Constant on-cycle:", background='#eeeeee').grid(row=15, column = 0, sticky=W)
         self.var.append(IntVar())
-        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(14)).grid(row=16, column = 2)
+        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(d["ConstOnCycle1"])).grid(row=15, column = 2)
         self.var.append(IntVar())
-        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(15)).grid(row=16, column = 3)
+        Checkbutton(xctop, text="", variable=self.var[-1], background='#eeeeee', command= lambda: self.disableDuty(d["ConstOnCycle2"])).grid(row=15, column = 3)
+        
+        for channel in range(2):
+            if channel==0:
+                Label(xctop, text="On period [s]:", background='#eeeeee').grid(row=17, column = 0, sticky=W)
+            self.var.append(Scale(xctop, from_=0, to=1, orient=HORIZONTAL, length=200, resolution=0.001, showvalue=8, tickinterval=0, takefocus=True, background='#eeeeee', state = DISABLED))
+            self.var[-1].grid(row=17, column = 2+channel, sticky=W+E)
         
         
         copy1 = Button(xctop,text="Copy from 2", command= lambda: self.copyFrom(2), background='#eeeeee')
         copy2 = Button(xctop,text="Copy from 1", command= lambda: self.copyFrom(1), background='#eeeeee')
-        copy1.grid(row=17, column = 2, sticky=W+E)
-        copy2.grid(row=17, column = 3, sticky=W+E)
+        copy1.grid(row=18, column = 2, sticky=W+E)
+        copy2.grid(row=18, column = 3, sticky=W+E)
         xctop.pack()
         ctop.pack(fill=BOTH)
         
         return root
     
     def getBottom(self, root):
-        botbuttons = Frame(root)       # Row of buttons
-        botbuttons.pack()
-        b1 = Button(botbuttons,text="Save Protocol", command=self.saveProto, background='#eeeeee')
-        b2 = Button(botbuttons,text="Add Condition", command=self.addCond, background='#eeeeee')
-        b3 = Button(botbuttons,text="Edit Condition", command=self.editCond, background='#eeeeee')
-        b4 = Button(botbuttons,text="Delete Condition", command=self.delCond, background='#eeeeee')
-        b1.pack(side=LEFT) 
-        b2.pack(side=LEFT)
-        b3.pack(side=LEFT)
-        b4.pack(side=LEFT)
+        saveload = Frame(root)       # Row of buttons
+        saveload.pack()
+        save = Button(saveload,text="Save Protocol", command=self.saveProto, background='#eeeeee')
+        save.pack(side=LEFT) 
+        load = Button(saveload,text="Load Protocol", command=self.loadProto, background='#eeeeee')
+        load.pack(side=LEFT) 
+        condbs = Frame(root)       # Row of buttons
+        condbs.pack()
+        add = Button(condbs,text="Add Condition", command=self.addCond, background='#eeeeee')
+        edit = Button(condbs,text="Edit Condition", command=self.editCond, background='#eeeeee')
+        delete = Button(condbs,text="Delete Condition", command=self.delCond, background='#eeeeee')
+        add.pack(side=LEFT)
+        edit.pack(side=LEFT)
+        delete.pack(side=LEFT)
 
         botlist = Frame(root)       # select of names
         botlist.pack()
@@ -198,40 +217,59 @@ class App():
     
     def dclick(self, event):
         for ind, var in enumerate(self.var):
-            temp = self.conds[self.whichSelected()].get(ind)
-            var.set(temp)
+            if ind < self.conds[self.whichSelected()].length():
+                temp = self.conds[self.whichSelected()].get(ind)
+                var.set(temp)
             
     def disableDuty(self, ch):
-        print("Channel is", ch)
-        print("This event is", self.var[ch+2].get())
-        if self.var[ch+2].get() == 0:
-            self.var[ch].config(state=NORMAL)
+        if self.var[ch].get() == 0:
+            self.var[ch-2].config(state=NORMAL)
+            self.var[ch+2].config(state=DISABLED)
         else:
-            self.var[ch].set(0.5)
-            self.var[ch].config(state=DISABLED)
+            self.var[ch-2].config(state=DISABLED)
+            self.var[ch+2].config(state=NORMAL)
+            
+    def loadProto(self):
+        # load data
+        name = filedialog.askopenfilename()
+        with open(name) as f:
+            f=[x.strip() for x in f if x.strip()]
+            data=[x.split() for x in f]
+            length = len(data)
+            oldrow=14*[0]
+            count = 0
+            for ind,row in enumerate(data):
+                row[0:2] = map(int,row[0:2])
+                row[2:8] = map(float,row[2:8])
+                row[8:12] = map(int,row[8:12])
+                row[12:] = map(float,row[12:])
+                if sum(row) > 0.:
+                    #print(sum(row), diff(row,oldrow))
+                    if (diff(row,oldrow) > 0. or ind == len(data)-1) and ind > 0:
+                        #print("Condition %u for arena %u to %u" % (len(self.conds)+1, ind-count, ind))
+                        tempdata = [ind-count, ind]
+                        for all in oldrow:
+                            tempdata.append(all)
+                        newCond = Condition(tempdata)
+                        self.conds.append(newCond)
+                        self.setSelect()
+                        count = 0
+                    else:
+                        count +=1
+                oldrow = row
     
     def saveProto(self):
         if len(self.conds)==0:
             self.addCond()
-        datalen = (len(d)-2)
-        Times = [('t'+str(i), np.int64) for i in range(6)]
-        Freqs = [('f'+str(i), np.int64) for i in range(4)]
-        dt = np.dtype(Times + [('prob1', np.float64), ('prob2', np.float64)] + Freqs + [('duty1', np.float64), ('duty2', np.float64)]  + [('on1', np.int64), ('on2', np.int64)])
-        #print(dt)
-        fields = np.zeros(len(Times)+2+len(Freqs), dtype=dt)
-        myfmt = len(Times)*'%u ' + '%1.2f %1.2f ' + len(Freqs)*'%3u ' + '%1.2f %1.2f '  + '%u %u'
-        outdata = np.zeros((32,datalen), np.float64)
-    
-        
+        datalen = (len(d)-6)
+        myfmt = 2 *'%u ' + 4 * '%2.1f ' + 2 * '%1.2f ' + 4 * '%3u ' + 2 * '%1.2f '
+        outdata = np.zeros((32,datalen), np.float64)   
         for cond in self.conds:
             for ind in range(cond.get(0)-1, cond.get(1)):
-                outdata[ind,:] = cond.getall()
-                    
-        #outdata = np.reshape(outdata,(1,32*datalen))
+                outdata[ind,:] = cond.getall()       
         name=filedialog.asksaveasfilename(defaultextension=".dat")
         if name is not None:
             print("Saved to %s" % name)
-            #print(outdata)
             with open(name,'wb') as f:
                 np.savetxt(f, outdata, fmt=myfmt)
     
@@ -289,14 +327,20 @@ class Condition:
             self.data.append(vals)
             
     def getall(self):
-        #print("This condition has", np.asarray(self.data[2:]).shape, "entries")
-        return np.asarray(self.data[2:])
+        if self.data[-4] == 1:
+            self.data[-6] = self.data[-2] * self.data[-8]
+        if self.data[-3] == 1:
+            self.data[-5] = self.data[-1] * self.data[-7]
+        return np.asarray(self.data[2:-4])
         
     def get(self, ind):
         return self.data[ind]
     
     def set(self, ind, val):
         self.data[ind] = val 
+        
+    def length(self):
+        return len(self.data)
 
 def main(): 
     app = App()

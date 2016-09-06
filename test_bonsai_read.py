@@ -9,11 +9,12 @@ def process():
     data=[x.split() for x in f]
     length = len(data)
     for row in data:
-        row[0:6] = map(int,row[0:6])
-        row[6:8] = map(float,row[6:8])
-        row[8:] = map(int,row[8:])
+        row[0:2] = map(int,row[0:2])
+        row[2:8] = map(float,row[2:8])
+        row[8:12] = map(int,row[8:12])
+        row[12:] = map(float,row[12:])
     print(data)
-  return data
+  return np.asarray(data)
   
 thisdata = process()
 #print(thisdata[0][0])

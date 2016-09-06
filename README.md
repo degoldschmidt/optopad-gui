@@ -31,10 +31,10 @@ v0.9-beta:
 | ------------: |:-------------:|
 | 0             | Color CH1 (int) |
 | 1             | Color CH2 (int) |
-| 2             | Delay CH1 (int) |
-| 3             | Delay CH2 (int) |
-| 4             | Sustain CH1 (int) |
-| 5             | Sustain CH2 (int) |
+| 2             | Delay CH1 (float) |
+| 3             | Delay CH2 (float) |
+| 4             | Sustain CH1 (float) |
+| 5             | Sustain CH2 (float) |
 | 6             | Probability CH1 (float) |
 | 7             | Probability CH2 (float) |
 | 8             | Stop condition (int) |
@@ -43,5 +43,3 @@ v0.9-beta:
 | 11            | Frequency CH2 (int) |
 | 12            | Duty cycle CH1 (float) |
 | 13            | Duty cycle CH2 (float) |
-| 14            | Constant on-cycle CH1 (int) |
-| 15            | Constant on-cycle CH1 (int) |
